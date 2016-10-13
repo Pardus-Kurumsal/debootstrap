@@ -9,6 +9,7 @@ else
     KEYRING := pardus-archive-keyring
   else
     KEYRING := debian-archive-keyring
+  endif
 endif
 
 %:
