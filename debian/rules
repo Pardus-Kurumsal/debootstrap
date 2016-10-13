@@ -5,7 +5,10 @@ ifeq (0,$(shell dpkg-vendor --derives-from Ubuntu; echo $$?))
 else ifeq (0,$(shell dpkg-vendor --derives-from Tanglu; echo $$?))
   KEYRING := tanglu-archive-keyring
 else
-  KEYRING := debian-archive-keyring
+  ifeq (0,$(shell dpkg-vendor --derives-from Pardus; echo $$?))
+    KEYRING := pardus-archive-keyring
+  else
+    KEYRING := debian-archive-keyring
 endif
 
 %:
