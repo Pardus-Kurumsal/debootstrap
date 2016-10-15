@@ -1,3 +1,11 @@
+debootstrap (1.0.84pardus1) pardus; urgency=medium
+
+  * Add pardus to scripts
+  * Fix ifeq
+  * Add drone yml
+
+ -- Gökhan Karabulut <gokhan.karabulut@pardus.org.tr>  Sat, 15 Oct 2016 14:51:44 +0300
+
 debootstrap (1.0.84) unstable; urgency=medium
 
   [ Ansgar Burchardt ]
