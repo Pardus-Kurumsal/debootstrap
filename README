@@ -10,7 +10,7 @@ You can run debootstrap from its source tree without installing it. This
 can be useful if you want a quick way to make a Debian chroot on another
 system, or if you are testing modifications to debootstrap.
 
-First, get the source. 
+First, get the source.
 
 * Either by using git
   git clone https://anonscm.debian.org/git/d-i/debootstrap.git
@@ -27,7 +27,7 @@ If you are running a multi-stage boot strap (for example for a QEMU
 rootfs) you don't even need root:
 
     export DEBOOTSTRAP_DIR=`pwd`
-    fakeroot ./debootstrap --foreign --arch=armhf testing my-testing-dir http://httpredir.debian.org/debian
+    fakeroot ./debootstrap --foreign --arch=armhf testing my-testing-dir http://deb.debian.org/debian
 
 Of course you will need to execute the second stage as root to finish the bootstrap:
 
@@ -41,7 +41,7 @@ Future
   * Cross-strap support - so you can bootstrap a filesystem to the
     point where it will successfully boot, and finish installing itself
     without having to be running the target architecture or OS yourself.
-    This means you should be able to run 
+    This means you should be able to run
 
 	debootstrap --arch powerpc sarge ./sarge-ppc-chroot ...
 

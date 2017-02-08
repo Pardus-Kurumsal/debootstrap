@@ -526,18 +526,74 @@ validate_suite () {
 	fi
 }
 
-download_release_sig () {
-	local m1="$1"
+split_inline_sig () {
+	local inreldest="$1"
 	local reldest="$2"
 	local relsigdest="$3"
 
+	# Note: InRelease files are fun since one needs to remove the
+	# last newline from the PGP SIGNED MESSAGE part, while keeping
+	# the PGP SIGNATURE part intact. This shell implementation
+	# should work on most if not all systems, instead of trying to
+	# sed/tr/head, etc.
+	rm -f "$reldest" "$relsigdest"
+	nl=""
+	state=pre-begin
+	while IFS= read -r line; do
+		case "${state}" in
+		    pre-begin)
+			if [ "x${line}" = "x-----BEGIN PGP SIGNED MESSAGE-----" ]; then
+				state=begin
+			fi
+			;;
+		    begin)
+			if [ "x${line}" = "x" ]; then
+				state=data
+			fi
+			;;
+		    data)
+			if [ "x${line}" = "x-----BEGIN PGP SIGNATURE-----" ]; then
+				printf "%s\n" "${line}" > "$relsigdest"
+				state=signature
+			else
+				printf "${nl}%s" "${line}" >> "$reldest"
+				nl="\n"
+			fi
+			;;
+		    signature)
+			printf "%s\n" "${line}" >> "$relsigdest"
+			if [ "x${line}" = "x-----END PGP SIGNATURE-----" ]; then
+				break
+			fi
+		esac
+	done < "$inreldest"
+}
+
+download_release_sig () {
+	local m1="$1"
+	local inreldest="$2"
+	local reldest="$3"
+	local relsigdest="$4"
+
+	progress 0 100 DOWNREL "Downloading Release file"
+	progress_next 100
+	if get "$m1/dists/$SUITE/InRelease" "$inreldest" nocache; then
+		split_inline_sig "$inreldest" "$reldest" "$relsigdest"
+		progress 100 100 DOWNREL "Downloading Release file"
+	else
+		get "$m1/dists/$SUITE/Release" "$reldest" nocache ||
+			error 1 NOGETREL "Failed getting release file %s" "$m1/dists/$SUITE/Release"
+		progress 100 100 DOWNREL "Downloading Release file"
+	fi
 	if [ -n "$KEYRING" ] && [ -z "$DISABLE_KEYRING" ]; then
 		progress 0 100 DOWNRELSIG "Downloading Release file signature"
-		progress_next 50
-		get "$m1/dists/$SUITE/Release.gpg" "$relsigdest" nocache ||
-			error 1 NOGETRELSIG "Failed getting release signature file %s" \
-			"$m1/dists/$SUITE/Release.gpg"
-		progress 50 100 DOWNRELSIG "Downloading Release file signature"
+		if ! [ -f "$relsigdest" ]; then
+			progress_next 50
+			get "$m1/dists/$SUITE/Release.gpg" "$relsigdest" nocache ||
+				error 1 NOGETRELSIG "Failed getting release signature file %s" \
+				"$m1/dists/$SUITE/Release.gpg"
+			progress 50 100 DOWNRELSIG "Downloading Release file signature"
+		fi
 
 		info RELEASESIG "Checking Release signature"
 		# Don't worry about the exit status from gpgv; parsing the output will
@@ -550,16 +606,11 @@ download_release_sig () {
 
 download_release_indices () {
 	local m1="${MIRRORS%% *}"
+	local inreldest="$TARGET/$($DLDEST rel "$SUITE" "$m1" "dists/$SUITE/InRelease")"
 	local reldest="$TARGET/$($DLDEST rel "$SUITE" "$m1" "dists/$SUITE/Release")"
-	local relsigdest
-	progress 0 100 DOWNREL "Downloading Release file"
-	progress_next 100
-	get "$m1/dists/$SUITE/Release" "$reldest" nocache ||
-		error 1 NOGETREL "Failed getting release file %s" "$m1/dists/$SUITE/Release"
-	relsigdest="$TARGET/$($DLDEST rel "$SUITE" "$m1" "dists/$SUITE/Release.gpg")"
-	progress 100 100 DOWNREL "Downloading Release file"
+	local relsigdest="$TARGET/$($DLDEST rel "$SUITE" "$m1" "dists/$SUITE/Release.gpg")"
 
-	download_release_sig "$m1" "$reldest" "$relsigdest"
+	download_release_sig "$m1" "$inreldest" "$reldest" "$relsigdest"
 
 	validate_suite "$reldest"
 
@@ -819,6 +870,7 @@ get_debs () {
 ################################################################ extraction
 
 EXTRACTORS_SUPPORTED="dpkg-deb ar"
+EXTRACT_DEB_TAR_OPTIONS=
 
 # Native dpkg-deb based extractors
 extract_dpkg_deb_field () {
@@ -831,7 +883,7 @@ extract_dpkg_deb_field () {
 extract_dpkg_deb_data () {
 	local pkg="$1"
 
-	dpkg-deb --fsys-tarfile "$pkg" | tar -kxf -
+	dpkg-deb --fsys-tarfile "$pkg" | tar $EXTRACT_DEB_TAR_OPTIONS -xf -
 }
 
 # Raw .deb extractors
@@ -869,7 +921,7 @@ extract_ar_deb_data () {
 	esac
 
 	if type $cat_cmd >/dev/null 2>&1; then
-		ar -p "$pkg" "$tarball" | $cat_cmd | tar -kxf -
+		ar -p "$pkg" "$tarball" | $cat_cmd | tar $EXTRACT_DEB_TAR_OPTIONS -xf -
 	else
 		error 1 UNPACKCMDUNVL "Extracting %s requires the %s command, which is not available" "$pkg" "$cat_cmd"
 	fi
@@ -1284,6 +1336,7 @@ while (<STDIN>) {
 		for $d (split /\s*,\s*/, $1) {
 			$d =~ s/\s*[|].*$//;
 			$d =~ s/\s*[(].*[)]\s*//;
+			$d =~ s/:.*//;
 			push @d, $d;
 		}
 	}
