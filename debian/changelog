@@ -1,3 +1,9 @@
+debootstrap (1.0.88pardus1) pardus; urgency=medium
+
+  * Apply changes for pardus
+
+ -- Yunusemre Şentürk <yunusemre.senturk@pardus.org.tr>  Mon, 20 Feb 2017 10:13:50 +0300
+
 debootstrap (1.0.88) unstable; urgency=high
 
   [ Sven Joachim ]
