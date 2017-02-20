@@ -52,6 +52,20 @@ debootstrap (1.0.85) unstable; urgency=medium
   * Enable merged-/usr by default. (Closes: #839046)
 
  -- Julien Cristau <jcristau@debian.org>  Fri, 21 Oct 2016 20:22:49 +0200
+ 
+debootstrap (1.0.84pardus2) pardus; urgency=medium
+
+  * Change mirror Ip address
+
+ -- Yunusemre Şentürk <yunusemre.senturk@pardus.org.tr>  Wed, 08 Feb 2017 14:33:25 +0300
+
+debootstrap (1.0.84pardus1) pardus; urgency=medium
+
+  * Add pardus to scripts
+  * Fix ifeq
+  * Add drone yml
+
+ -- Gökhan Karabulut <gokhan.karabulut@pardus.org.tr>  Sat, 15 Oct 2016 14:51:44 +0300
 
 debootstrap (1.0.84) unstable; urgency=medium
 
