@@ -1,3 +1,10 @@
+debootstrap (1.0.88pardus2) pardus; urgency=medium
+
+  [ Cihangir Akturk ]
+  * scripts:pardus: change default_mirror
+
+ -- vagrant <vagrant@localhost.localdomain>  Tue, 21 Feb 2017 15:39:06 +0300
+
 debootstrap (1.0.88pardus1) pardus; urgency=medium
 
   * Apply changes for pardus
