@@ -1,4 +1,4 @@
-default_mirror http://161.9.194.174:33333/pardus
+default_mirror http://depo.pardus.org.tr/pardus
 mirror_style release
 download_style apt
 finddebs_style from-indices
