@@ -1,3 +1,9 @@
+debootstrap (1.0.89pardus2) pardus; urgency=medium
+
+  * Add pardus suite onyedi
+
+ -- Yunusemre Şentürk <yunusemre.senturk@pardus.org.tr>  Fri, 28 Apr 2017 13:58:33 +0300
+
 debootstrap (1.0.89pardus1) pardus; urgency=medium
 
   [ Yunusemre Şentürk ]
