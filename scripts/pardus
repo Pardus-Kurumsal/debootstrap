@@ -26,7 +26,7 @@ work_out_debs () {
 	elif doing_variant buildd || doing_variant scratchbox; then
 		base="apt build-essential"
 	elif doing_variant minbase; then
-		base="apt"
+		base="apt pardus-archive-keyring"
 	fi
 
 	if doing_variant fakechroot; then
