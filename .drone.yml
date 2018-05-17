@@ -9,6 +9,8 @@ build:
       - apt-get install build-essential equivs devscripts
       - mkdir -p build-area
       - cd build-area
+      - ls -l /packages/debootstrap/
+      - ls -l /packages/$(basename $DRONE_REPO)/
       - dpkg-source -x /packages/$(basename $DRONE_REPO)/*.dsc build-$(basename $DRONE_REPO)
       - cd build-$(basename $DRONE_REPO)
       - mk-build-deps -i -r
